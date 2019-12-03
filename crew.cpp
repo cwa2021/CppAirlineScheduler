@@ -10,6 +10,9 @@ using namespace std::placeholders;
 
 #include "crew.h"
 #include "crew_collection.h"
+#include "pilot.h"
+#include "co_pilot.h"
+#include "cabin_crew.h"
 #include "flight.h"
 #include "flight_collection.h"
 #include "helper.h"
@@ -29,10 +32,24 @@ const map<string, Crew::Availability> Crew::AVAILABILITY_MENU {
 const map<Crew::Availability, string> Crew::AVAILABILITY_TO_STRING = Helper::invertMap(Crew::AVAILABILITY_MENU);
 const map<Crew::Type, string> Crew::TYPE_TO_STRING = Helper::invertMap(Crew::TYPE_MENU);
 
+Crew& Crew::dereference(Crew* c) {
+  return *c;
+}
+const Crew& Crew::dereference(const Crew* c) {
+  return *c;
+}
+
 Crew::Crew() : id(crewCollection.nextId()) {}
 Crew::Crew(Type type) : id(crewCollection.nextId()), type(type) {}
 Crew::Crew(const string &name, Type type) : id(crewCollection.nextId()), name(name), type(type) {}
 Crew::Crew(int id, const string &name, Type type) : id(id), name(name), type(type) {}
+
+Crew::Crew(const vector<string> &parts) {
+  id = stoi(parts[1]);
+  name = parts[2];
+  type = static_cast<Type>(stoi(parts[0]));
+  availability = static_cast<Availability>(stoi(parts[3]));
+}
 
 int Crew::getId() const {
   return id;
@@ -54,11 +71,12 @@ void Crew::setName(const string &name) {
   this->name = name;
 }
 
-const string Crew::toLine() const {
+string Crew::toLine() const {
   // Cannot return reference here because val gets deallocated when function toLine ends (therefore, a reference to the returned value would refer to something that no longer existed when the function returned and you tried to use it)
-  string val = to_string(id) + ",";
-  val += to_string(static_cast<int>(type)) + ",";
-  val += name;
+  string val = to_string(static_cast<int>(type)) + ",";
+  val += to_string(id) + ",";
+  val += name + ",";
+  val += to_string(static_cast<int>(availability));
   return val;
 }
 
@@ -80,19 +98,26 @@ Crew::operator const string&() const {
   return name;
 }
 
-Crew Crew::fromLine(const string &line) {
+Crew* Crew::fromLine(const string &line) {
   vector<string> parts = Helper::split(line);
-  int id = stoi(parts[0]);
-  int typeId = stoi(parts[1]);
-  string name = parts[2];
-  return Crew(id, name, static_cast<Type>(typeId));
+  Type type = static_cast<Type>(stoi(parts.front()));
+  Crew *newCrew = nullptr;
+  if (type == Type::PILOT) {
+    newCrew = new Pilot(parts);
+  } else if (type == Type::CO_PILOT) {
+    newCrew = new CoPilot(parts);
+  } else if (type == Type::CABIN) {
+    newCrew = new CabinCrew(parts);
+  } else {
+    throw invalid_argument("Invalid Crew Type");
+  }
+  return newCrew;
 }
 
 bool Crew::interactiveEdit() { 
   cout << "Enter values for each of the following fields for this item." << endl;
   cout << "If you do not proivde a value, the default/old value (indicated in brackets '[]') will be used." << endl;
   name = Helper::promptValueWithDefault("Name", name);
-  if (!saved) type = Helper::promptMenu(TYPE_MENU, "Type of Crew Member");
   Availability oldAvail = availability;
   try {
     availability = Helper::promptMenu(AVAILABILITY_MENU, "Availability of Crew Member");
@@ -131,14 +156,14 @@ void Crew::print() const {
 }
 
 void Crew::valid() const {
-  const vector<reference_wrapper<Flight>> assignedFlights = flightCollection.find_all(*this);
+  const vector<reference_wrapper<Flight>> assignedFlights = flightCollection.find_all(this);
   if (!isAvailable() && assignedFlights.size() > 0) {
     throw invalid_argument("This crew member is assigned to at least one flight. Unassign before marking unavailable.");
   }
 }
 
 void Crew::validateRemoval() const {
-  const vector<reference_wrapper<Flight>> assignedFlights = flightCollection.find_all(*this);
+  const vector<reference_wrapper<Flight>> assignedFlights = flightCollection.find_all(this);
   if (assignedFlights.size() > 0) {
     throw invalid_argument("This crew member is assigned to at least one flight. Unassign before deleting.");
   }
@@ -151,7 +176,7 @@ ostream &operator<<(ostream &out, const Crew &c) {
 // Returns if this crew member is booked on another flight during this timespan
 bool Crew::freeDuring(const TimeSpan &ts, int exceptFlightId) const {
   vector<reference_wrapper<Flight>> flights = flightCollection.find_overlapping(ts);
-  const function<bool(const Flight&)> has_crew_member = bind(mem_fn<bool(const Crew&) const>(&Flight::hasCrewMember), _1, *this);
+  const function<bool(const Flight&)> has_crew_member = bind(mem_fn<bool(const Crew*) const>(&Flight::hasCrewMember), _1, this);
   const function<bool(const Flight&)> doesnt_have_crew_member = bind(logical_not<bool>(), bind(has_crew_member, _1));
   auto it = remove_if(flights.begin(), flights.end(), doesnt_have_crew_member);
   flights.erase(it, flights.end());

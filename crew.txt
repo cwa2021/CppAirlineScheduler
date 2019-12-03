@@ -1,8 +1,0 @@
-1,0,Connor
-2,1,Ray
-3,0,Marisa
-4,0,Mike
-5,0,DJ
-6,1,Karen
-7,1,Max
-8,1,Edward

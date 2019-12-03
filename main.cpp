@@ -122,7 +122,7 @@ void searchCrew() {
     cout << "Crew member not found." << endl;
     return;
   }
-  Crew &crew = *crewIt;
+  Crew &crew = **crewIt;
 
   cout << "Crew member with ID # " << id << " found." << endl;
   function<void(Crew&)> crewOperation = Helper::promptMenu(EDIT_CREW_MENU, EDIT_CREW_MENU_PROMPT);

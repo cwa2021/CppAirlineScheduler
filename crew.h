@@ -1,6 +1,7 @@
 #pragma once
 #include <set>
 #include <map>
+#include <vector>
 #include <string>
 #include <iostream>
 #include <algorithm>
@@ -20,6 +21,9 @@ public:
   static const map<string, Availability> AVAILABILITY_MENU;
   static const map<Availability, string> AVAILABILITY_TO_STRING;
   static const map<Type, string> TYPE_TO_STRING;
+  static Crew& dereference(Crew*);
+  static const Crew& dereference(const Crew*);
+  virtual ~Crew() = default;
 private:
   int id = 0;
   string name = "";
@@ -35,9 +39,9 @@ protected:
   Crew();
   Crew(Type type);
   Crew(const string &name, Type type);
-protected:
   // private constructor to be used when loading file that allows specifying an ID
   Crew(int id, const string &name, Type type);
+  Crew(const vector<string> &parts);
 public:
   //getters
   int getId() const;
@@ -54,7 +58,7 @@ public:
   bool freeDuring(const TimeSpan &ts, int exceptFlightId = -1) const;
 
   // converts crew instance to string for save file
-  virtual const string toLine() const;
+  virtual string toLine() const;
 
   // less than operator (order by id#)
   bool operator<(const Crew&) const;
@@ -78,7 +82,7 @@ public:
   operator const string&() const;
 
   // parses line from save file into crew instance
-  static Crew fromLine(const string &line);
+  static Crew *fromLine(const string &line);
 
   // Friends to allow instantiating this object
   friend CrewCollection;

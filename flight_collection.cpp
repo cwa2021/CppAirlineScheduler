@@ -19,6 +19,11 @@ using namespace Helper;
 
 FlightCollection flightCollection;
 
+void FlightCollection::FlightCollection() {
+  vector<string> lines = Helper::readFile(FILENAME);
+  transform(lines.begin(), lines.end(), inserter(flights, flights.end()), &Flight::fromLine);
+}
+
 bool FlightCollection::add() {
   Flight newFlight;
   if (newFlight.interactiveEdit()) return add(newFlight);
@@ -45,11 +50,6 @@ ostream &operator<<(ostream &out, const FlightCollection &fc) {
   return out;
 }
 
-void FlightCollection::load() {
-  vector<string> lines = Helper::readFile(FILENAME);
-  transform(lines.begin(), lines.end(), inserter(flights, flights.end()), &Flight::fromLine);
-}
-
 void FlightCollection::save() const {
   vector<string> lines;
   transform(flights.begin(), flights.end(), back_inserter(lines), mem_fn(&Flight::toLine));
@@ -64,11 +64,15 @@ const vector<reference_wrapper<Flight>> FlightCollection::find_all(const Aircraf
   return matches;
 }
 
-const vector<reference_wrapper<Flight>> FlightCollection::find_all(const Crew &c) {
-  function<bool(const Flight&)> predicate = bind(mem_fn<bool(const Crew&) const>(&Flight::hasCrewMember), _1, c);
+const vector<reference_wrapper<Flight>> FlightCollection::find_all(const Crew *c) {
+  function<bool(const Flight&)> predicate = bind(mem_fn<bool(const Crew*) const>(&Flight::hasCrewMember), _1, c);
   vector<reference_wrapper<Flight>> matches;
   copy_if(flights.begin(), flights.end(), inserter(matches, matches.end()), predicate);
   return matches;
+}
+
+const vector<reference_wrapper<Flight>> FlightCollection::find_all(const Crew &c) {
+  return find_all(&c);
 }
 
 const vector<reference_wrapper<Flight>> FlightCollection::find_all(const Flight::Status s) {

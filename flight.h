@@ -48,8 +48,8 @@ public:
   const string &getPlaneId() const;
   const Aircraft &getAircraft() const;
   const set<int> &getCrewMemberIds() const;
-  const set<reference_wrapper<const Crew>> getCrewMembers() const;
-  const set<reference_wrapper<const Crew>> getCrewMembers(Crew::Type) const;
+  const vector<const Crew*> getCrewMembers() const;
+  const vector<const Crew*> getCrewMembers(Crew::Type) const;
   const typename TimeSpan::time_point &getStartTime() const;
   const typename TimeSpan::time_point &getEndTime() const;
   const TimeSpan &getTimeSpan() const;
@@ -83,12 +83,12 @@ public:
   void complete();
 
   // add/remove to/from pilots/crew (mostly unusued)
-  bool addCrewMember(const Crew &c);
+  bool addCrewMember(const Crew *c);
   bool addCrewMember(int crewId);
-  bool removeCrewMember(const Crew &c);
+  bool removeCrewMember(const Crew *c);
   bool removeCrewMember(int crewId);
   bool hasCrewMember(int crewId) const;
-  bool hasCrewMember(const Crew &c) const;
+  bool hasCrewMember(const Crew *c) const;
 
   // ensures flight is valid
   void valid() const;

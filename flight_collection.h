@@ -16,7 +16,7 @@ class FlightCollection {
   vector<Flight> flights;
   const string FILENAME = "flights.txt";
 public:
-  
+  FlightCollection();  
 
   bool add();
   bool add(Flight &f);
@@ -36,6 +36,7 @@ public:
   const vector<reference_wrapper<Flight>> find_overlapping(const TimeSpan &ts);
   // lists all flights that have a given crew member/aircraft assigned, or have a given status
   const vector<reference_wrapper<Flight>> find_all(const Aircraft &a);
+  const vector<reference_wrapper<Flight>> find_all(const Crew *c);
   const vector<reference_wrapper<Flight>> find_all(const Crew &c);
   const vector<reference_wrapper<Flight>> find_all(const Flight::Status s);
   // uses the relevant find_all function to print a specific list of flights
@@ -53,7 +54,6 @@ public:
   void print() const;
 
   // load and save flights to/from file
-  void load();
   void save() const;
   friend ostream &operator<<(ostream &out, const FlightCollection &f);
 };

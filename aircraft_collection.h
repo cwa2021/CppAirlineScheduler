@@ -13,7 +13,7 @@ class AircraftCollection {
   const string FILENAME = "aircraft.txt";
   
 public:
-
+  AircraftCollection();
   void add();
   void add(Aircraft &c);
   template<typename T>
@@ -28,7 +28,6 @@ public:
   int tailNumCount(const string&) const;
   //write, retrieve and print aircraft collection
   void save();
-  void load();
   void print() const;
   friend ostream &operator<<(ostream&, const AircraftCollection&);
   //friend istream &operator>>(istream&, AircraftCollection&);

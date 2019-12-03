@@ -1,6 +1,7 @@
 #pragma once
 
-#include<string_view>
+#include<string>
+#include<vector>
 using namespace std;
 
 #include "crew.h"
@@ -13,9 +14,11 @@ public:
 protected:
   string rating{RATING_LENGTH, ' '};
   Pilot(int id, const string &name, const string &rating);
+  Pilot(const vector<string> &parts);
 
 public:
   Pilot();
+  ~Pilot() = default;
   Pilot(const string &name);
   Pilot(const string &name, const string &rating);
   Pilot(Pilot&&) = delete;
@@ -25,12 +28,14 @@ public:
   string getRating() const;
   void setRating(const string &rating);
 
-  virtual ostream &print(ostream&) const override;
-  virtual bool interactiveEdit() override;
+  ostream &print(ostream&) const override;
+  bool interactiveEdit() override;
+  string toLine() const override;
   Pilot &operator=(const Pilot&) = default;
 
   // Friends to allow instantiating this object
   friend CrewCollection;
+  friend Crew* Crew::fromLine(const string &line);
 
 };
 

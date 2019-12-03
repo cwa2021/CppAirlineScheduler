@@ -14,6 +14,10 @@ using namespace std::placeholders;
 
 AircraftCollection aircraftCollection;
 
+AircraftCollection::AircraftCollection() {
+  vector<string> lines = Helper::readFile(FILENAME);  
+  transform(lines.begin(), lines.end(), inserter(aircraft, aircraft.end()), &Aircraft::fromLine);
+}
 
 void AircraftCollection::add() {
   Aircraft newAircraft;
@@ -25,12 +29,6 @@ void AircraftCollection::add(Aircraft &a) {
   a.valid();
   aircraft.push_back(a);
 }
-
-void AircraftCollection::load() {
-  vector<string> lines = Helper::readFile(FILENAME);  
-  transform(lines.begin(), lines.end(), inserter(aircraft, aircraft.end()), &Aircraft::fromLine);
-}
-
 
 void AircraftCollection::save() {
   vector<string> lines;

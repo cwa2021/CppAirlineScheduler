@@ -114,20 +114,23 @@ bool Flight::hasRequiredCrewMemberTypeCount() const {
   return all_of(Crew::TYPE_TO_STRING.begin(), Crew::TYPE_TO_STRING.end(), typeMeetsRequirements);
 }
 
-const set<reference_wrapper<const Crew>> Flight::getCrewMembers() const {
-  set<reference_wrapper<const Crew>> crew;
+const vector<const Crew*> Flight::getCrewMembers() const {
+  vector<const Crew*> crew;
   for (int crewId : crewIds) {
     auto crewIt = crewCollection.find(crewId);
     if (crewCollection.isEnd(crewIt)) throw invalid_argument("A crew member with this ID does not exist.");
-    crew.insert(cref(*crewIt));
+    crew.push_back(*crewIt);
   }
   return crew;
 }
-const set<reference_wrapper<const Crew>> Flight::getCrewMembers(Crew::Type crewType) const {
-  const set<reference_wrapper<const Crew>> allCrew = getCrewMembers();
-  function<bool(const Crew&)> predicate = bind(mem_fn(&Crew::hasType), _1, crewType);
+const vector<const Crew*> Flight::getCrewMembers(Crew::Type crewType) const {
+  const vector<const Crew*> allCrew = getCrewMembers();
+  function<const Crew&(const Crew*)> dereferencer = bind<const Crew&(const Crew*)>(Crew::dereference, _1);
+  function<bool(const Crew &, Crew::Type)> crewHasType = mem_fn<bool(Crew::Type) const>(&Crew::hasType);
+  function<bool(const Crew &)> crewHasGivenType = bind(crewHasType, _1, crewType);
+  function<bool(const Crew*)> predicate = bind(crewHasGivenType, bind(dereferencer, _1));
 
-  set<reference_wrapper<const Crew>> crew;
+  vector<const Crew*> crew;
   copy_if(allCrew.begin(), allCrew.end(), inserter(crew, crew.end()), predicate);
   return crew;
 }
@@ -184,21 +187,21 @@ void Flight::complete() {
   status = Status::COMPLETE; 
 }
 
-bool Flight::addCrewMember(const Crew &c) {
-  if (!crewCollection.exists(c)) throw invalid_argument("Crew member ID is not valid.");
-  auto result = crewIds.insert(c.getId());
+bool Flight::addCrewMember(const Crew *c) {
+  if (!crewCollection.exists(*c)) throw invalid_argument("Crew member ID is not valid.");
+  auto result = crewIds.insert(c->getId());
   return result.second;
 }
 
 bool Flight::addCrewMember(int crewId) {
-  vector<Crew>::iterator crewIt = crewCollection.find(crewId);
+  vector<Crew*>::iterator crewIt = crewCollection.find(crewId);
   if (crewCollection.isEnd(crewIt)) throw invalid_argument("Crew member ID is not valid.");
-  Crew &c = *crewIt;
+  Crew *c = *crewIt;
   return addCrewMember(c);
 }
 
-bool Flight::removeCrewMember(const Crew &c) {
-  return removeCrewMember(c.getId());
+bool Flight::removeCrewMember(const Crew *c) {
+  return removeCrewMember(c->getId());
 }
 
 bool Flight::removeCrewMember(int crewId) {
@@ -212,8 +215,8 @@ bool Flight::hasCrewMember(int crewId) const {
   return crewIds.find(crewId) != crewIds.end();
 }
 
-bool Flight::hasCrewMember(const Crew &c) const {
-  return hasCrewMember(c.getId());
+bool Flight::hasCrewMember(const Crew *c) const {
+  return hasCrewMember(c->getId());
 }
 
 const string Flight::toLine() const {
@@ -258,8 +261,10 @@ void Flight::valid() const {
   if (!aircraft.availableDuring(timeSpan, flightNum)) throw invalid_argument("The selected aircraft is not available during this time span.");
 
   // make sure cabin/crew members are available during flight
-  set<reference_wrapper<const Crew>> crew = getCrewMembers();
-  function<bool(const Crew&)> crewOverbooked = bind(mem_fn(&Crew::freeDuring), _1, timeSpan, flightNum);
+  vector<const Crew*> crew = getCrewMembers();
+
+  auto dereferencer = bind<const Crew&(const Crew*)>(&Crew::dereference, _1);
+  function<bool(const Crew*)> crewOverbooked = bind(mem_fn(&Crew::freeDuring),  bind(dereferencer, _1), timeSpan, flightNum);
   if (!all_of(crew.begin(), crew.end(), crewOverbooked)) throw invalid_argument("One or more crew members are not free during the flight.");
   if (!all_of(crew.begin(), crew.end(), mem_fn(&Crew::isAvailable))) throw invalid_argument("One or more crew members are not currently working.");
 
@@ -296,7 +301,7 @@ bool Flight::interactiveEdit() {
   cout << "Enter values for each of the following fields for this item." << endl;
   cout << "If you do not proivde a value, the default/old value (indicated in brackets '[]') will be used." << endl;
   flightNum = Helper::promptValueWithDefault("Flight Number", flightNum);
-  planeId = Helper::promptValueWithDefault("Plane ID", planeId);
+  planeId = Helper::promptValueWithDefault("Tail Number", planeId);
   startAirport = Helper::promptValueWithDefault("Start Airport", startAirport);
   endAirport = Helper::promptValueWithDefault("End Airport", endAirport);
   numPassengers = Helper::promptValueWithDefault("Number of Passengers", numPassengers);

@@ -1,6 +1,7 @@
 #pragma once
 
-#include<string_view>
+#include <string>
+#include <vector>
 using namespace std;
 
 #include "crew.h"
@@ -12,22 +13,25 @@ public:
 protected:
   Position position = FIRST_CLASS;
   CabinCrew(int id, const string &name, Position position);
-
 public:
   CabinCrew();
+  ~CabinCrew() = default;
   CabinCrew(const string &name);
   CabinCrew(const string &name, Position position);
   CabinCrew(CabinCrew&&) = delete;
   CabinCrew(const CabinCrew&) = default;
+  CabinCrew(const vector<string> &parts);
 
 public:
   Position getPosition() const;
 
-  virtual ostream &print(ostream&) const override;
+  ostream &print(ostream&) const override;
   CabinCrew &operator=(const CabinCrew&) = default;
+  string toLine() const override;
 
   // Friends to allow instantiating this object
   friend CrewCollection;
+  friend Crew* Crew::fromLine(const string &line);
 
 };
 
