@@ -1,0 +1,18 @@
+// Output strings instead of ints for enums
+// Test file reading/writing
+// Comment/review code
+// Review Makefile
+
+For Next Assignment:
+- FIgure out why crewcollection::find was being weird
+- Clean up unused functions
+- Rename functions that have bad/inaccurate names
+- Make flights unique by key rather than num
+
+For this one:
+- Test loading/storing of data
+- Test everything else
+- store after every add, delete or edit to make sure changes to the data are preserved.
+- In flight interactiveEdit change Plane ID to tail num
+- Resume crew member IDs at previous saved value
+
