@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 using namespace std;
 
 #include "crew.h"
@@ -10,6 +11,7 @@ class CabinCrew : public Crew {
 public: 
   static const Crew::Type TYPE = Crew::Type::CABIN;
   enum Position { FIRST_CLASS, BUSINESS_CLASS, ECONOMY_FRONT, ECONOMY_REAR, LEAD };
+  static const map<Position, string> POSITION_TO_STRING;
 protected:
   Position position = FIRST_CLASS;
   CabinCrew(int id, const string &name, Position position);

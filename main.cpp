@@ -71,9 +71,6 @@ const map<string, function<void(Flight&)>>  EDIT_FLIGHT_MENU {
 
 
 int main() {
-  aircraftCollection.load();
-  crewCollection.load();
-  flightCollection.load();
   cout << WELCOME_MESSAGE << endl;
   while (true) mainMenu();
 }

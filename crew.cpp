@@ -19,8 +19,9 @@ using namespace std::placeholders;
 
 
 const map<string, Crew::Type> Crew::TYPE_MENU { 
-  { "Pilot", Crew::Type::PILOT },
-  { "Cabin", Crew::Type::CABIN }
+  { "Pilot",    Crew::Type::PILOT },
+  { "Co-Pilot", Crew::Type::CO_PILOT },
+  { "Cabin",    Crew::Type::CABIN }
 };
 
 const map<string, Crew::Availability> Crew::AVAILABILITY_MENU { 
@@ -136,6 +137,7 @@ ostream &Crew::print(ostream &out) const {
   out << "Crew Member ID #: " << id << endl;
   out << "Crew Member Name: " << name << endl;
   out << "Crew Member Type: " << TYPE_TO_STRING.at(type) << endl;
+  out << "Crew Member Availability: " << AVAILABILITY_TO_STRING.at(availability) << endl;
   return out;
 }
 

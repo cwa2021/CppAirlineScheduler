@@ -14,14 +14,14 @@ using namespace std::placeholders;
 #include "helper.h"
 
 CrewCollection::~CrewCollection() {
-  delete[] crew.data();
+  for(Crew *c : crew) delete c;
 }
 
 int CrewCollection::nextId() {
   return ++idCounter;
 }
 
-void CrewCollection::CrewCollection() {
+CrewCollection::CrewCollection() {
   vector<string> lines = Helper::readFile(FILENAME);
   transform(lines.begin(), lines.end(), back_inserter(crew), &Crew::fromLine);
   auto it = crew.rbegin();

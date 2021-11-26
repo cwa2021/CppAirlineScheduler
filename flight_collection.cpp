@@ -19,7 +19,7 @@ using namespace Helper;
 
 FlightCollection flightCollection;
 
-void FlightCollection::FlightCollection() {
+FlightCollection::FlightCollection() {
   vector<string> lines = Helper::readFile(FILENAME);
   transform(lines.begin(), lines.end(), inserter(flights, flights.end()), &Flight::fromLine);
 }

@@ -1,3 +1,4 @@
+#include <map>
 #include <string>
 #include <iostream>
 using namespace std;
@@ -5,6 +6,14 @@ using namespace std;
 #include "crew.h"
 #include "cabin_crew.h"
 #include "helper.h"
+
+const map<CabinCrew::Position, string> CabinCrew::POSITION_TO_STRING {
+  { FIRST_CLASS, "First Class" },
+  { BUSINESS_CLASS, "Business Class" },
+  { ECONOMY_FRONT, "Economy Front" },
+  { ECONOMY_REAR, "Economy Rear" },
+  { LEAD, "Lead" },
+};
 
 CabinCrew::CabinCrew() : Crew(CabinCrew::TYPE) {}
 CabinCrew::CabinCrew(const string &name) : Crew(name, CabinCrew::TYPE) {}
@@ -21,7 +30,7 @@ CabinCrew::Position CabinCrew::getPosition() const {
 
 ostream &CabinCrew::print(ostream &out) const {
   Crew::print(out);
-  out << "Position: " << position << endl;
+  out << "Position: " << POSITION_TO_STRING.at(position) << endl;
   return out;
 }
 

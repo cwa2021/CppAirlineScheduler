@@ -280,12 +280,12 @@ Flight Flight::fromLine(const string &line) {
   int flightNum = stoi(parts[0]);
   string planeId = parts[1];
   string crewIdsStr = parts[2];
-  int startTimestamp = stoi(parts[4]);
-  int endTimestamp = stoi(parts[5]);
-  string startAirport = parts[6];
-  string endAirport = parts[7];
-  int numPassengers = stoi(parts[8]);
-  int statusNum = stoi(parts[9]);
+  int startTimestamp = stoi(parts[3]);
+  int endTimestamp = stoi(parts[4]);
+  string startAirport = parts[5];
+  string endAirport = parts[6];
+  int numPassengers = stoi(parts[7]);
+  int statusNum = stoi(parts[8]);
 
   vector<int> crewIdsVector = Helper::string_to_ints(crewIdsStr);
   set<int> crewIds(crewIdsVector.begin(), crewIdsVector.end());
